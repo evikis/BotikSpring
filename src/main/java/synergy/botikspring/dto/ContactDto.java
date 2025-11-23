@@ -1,16 +1,31 @@
-package synergy.botikspring;
+package synergy.botikspring.dto;
 
-public class Contacts {
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class ContactDto {
+    private Long id;
     private String firstName;
     private String lastName;
     private String middleName;
     private String phone;
 
-    public Contacts(String firstName, String lastName, String middleName, String phone) {
+    public ContactDto(Long id, String firstName, String lastName, String middleName, String phone) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.middleName = middleName;
         this.phone = phone;
+    }
+
+    public ContactDto() {
+
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -29,6 +44,9 @@ public class Contacts {
         return phone;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
@@ -48,6 +66,6 @@ public class Contacts {
 
     @Override
     public String toString() {
-        return firstName + " " + lastName + " " + middleName + " " + phone;
+        return lastName + " " + firstName + " " + middleName + " " + phone;
     }
 }

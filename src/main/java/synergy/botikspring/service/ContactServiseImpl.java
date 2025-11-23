@@ -1,54 +1,60 @@
 package synergy.botikspring.service;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import synergy.botikspring.Contacts;
+import synergy.botikspring.dto.ContactDto;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ContactServiseImpl implements ContactServise {
 
-    @Value("${classpath:contacts.csv}")
-    private String csvFilePath;
+    private final List<ContactDto> contacts = new ArrayList<>();
+
+    public ContactServiseImpl() {
+        contacts.add(new ContactDto(1L, "Alice", "Deo", "Olegovna", "79788885454"));
+        contacts.add(new ContactDto(2L, "Bob", "Sabvelov", "Denisovich", "79786632121"));
+    }
 
     @Override
-    public List<Contacts> findAll() {
-        Resource resource = new ClassPathResource(csvFilePath);
-        if (!resource.exists()) {
-            throw new IllegalArgumentException("Файл не найден: " + csvFilePath);
-        }
+    public List<ContactDto> findAll() {
+        return contacts; // Возвращает все контакты из памяти
 
-        List<Contacts> contact = new ArrayList<>();
-        try {
-            InputStream is = resource.getInputStream();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(is, StandardCharsets.UTF_8));
-            String line;
-            boolean isFirstLine = true;
-            while ((line = reader.readLine()) != null) {
-                if (isFirstLine){
-                    isFirstLine = false;
-                    continue;
-                }
-                String[] parts = line.split(",");
-                if (parts.length == 4) {
-                    contact.add(new Contacts(
-                            parts[0], parts[1], parts[2], parts[3]
-                    ));
-                }
+    }
+
+    @Override
+    public ContactDto findById(Long id) throws Exception {
+        return contacts.stream()
+                .filter(c -> c.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public ContactDto create(ContactDto dto) throws Exception {
+        contacts.add(dto);
+        return dto;
+    }
+
+    @Override
+    public ContactDto update(ContactDto dto, Long id) {
+        for (int i = 0; i < contacts.size(); i++) {
+            if (contacts.get(i).getId().equals(id)) {
+                contacts.set(i, dto);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return contact;
+        return null;
+    }
+
+    @Override
+    public void delete(Long id) {
+        contacts.removeIf(c -> c.getId().equals(id));
+    }
+
+    @Override
+    public ContactDto update(ContactDto dto) {
+        return null;
     }
 }
