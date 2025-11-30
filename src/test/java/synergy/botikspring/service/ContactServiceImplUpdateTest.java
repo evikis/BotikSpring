@@ -1,25 +1,28 @@
 package synergy.botikspring.service;
 
+import myEntity.Contact;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import repository.ContactRepository;
 import synergy.botikspring.dto.ContactDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Сервис для обновления контактов")
 class ContactServiceImplUpdateTest {
 
-    @InjectMocks
-    private ContactServiceImpl contact;
+    @Mock
+    private ContactRepository contactRepository;
 
-    void setUp() throws Exception {
-        contact.create(new ContactDto(1L, "Alice", "Deo", "Olegovna", "79788885454"));
-        contact.create(new ContactDto(2L, "Bob", "Sabvelov", "Denisovich", "79786632121"));
-    }
+    @InjectMocks
+    private ContactServiceImpl contactService;
 
     @Test
     @DisplayName("обновляет контакты")
@@ -32,15 +35,17 @@ class ContactServiceImplUpdateTest {
                 "79784562321"
         );
 
-        ContactDto result = contact.update(contactDto, 1L);
+        when(contactRepository.existsById(1L)).thenReturn(true);
+        when(contactRepository.save(any())).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return (Contact) args[0];
+        });
+
+        ContactDto result = contactService.update(contactDto, 1L);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getLastName()).isEqualTo("Zurina");
         assertThat(result.getPhone()).isEqualTo("79784562321");
-
-        ContactDto found = contact.findById(1L);
-        assertThat(found).isEqualTo(result);
-
     }
 }
