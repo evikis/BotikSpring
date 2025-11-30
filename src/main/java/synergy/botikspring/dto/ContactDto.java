@@ -3,6 +3,8 @@ package synergy.botikspring.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Objects;
+
 @Data
 @Builder
 public class ContactDto {
@@ -11,6 +13,19 @@ public class ContactDto {
     private String lastName;
     private String middleName;
     private String phone;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContactDto that = (ContactDto) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
     public ContactDto(Long id, String firstName, String lastName, String middleName, String phone) {
         this.id = id;

@@ -7,24 +7,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import synergy.botikspring.dto.ContactDto;
-import synergy.botikspring.service.ContactServise;
+import synergy.botikspring.service.ContactService;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/contacts")
+@RequestMapping("/api/contacts")
 public class ContactController {
 
-    @Qualifier("contactServiseImpl")
+    @Qualifier("contactServiceImpl")
     @Autowired
-    private ContactServise contactsService;
-
-    public List<ContactDto> findAll() {
-        return new ArrayList<>(contactsService.findAll()); // копируем, чтобы избежать ConcurrentModificationException
-    }
+    private ContactService contactsService;
 
     @GetMapping
     public ResponseEntity<List<ContactDto>> getAll() {
@@ -43,11 +38,12 @@ public class ContactController {
     }
 
     @PostMapping
-    public ResponseEntity<ContactDto> create(@PathVariable @RequestBody ContactDto dto) {
+    public ResponseEntity<ContactDto> create(@RequestBody ContactDto dto) {
         try {
             ContactDto saved = contactsService.create(dto);
             return ResponseEntity
-                    .created(URI.create("/api/contacts/" + saved.getId()))
+                    .status(HttpStatus.CREATED)
+                    //.created(URI.create("/api/contacts/" + saved.getId()))
                     .body(saved);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(null);
@@ -60,16 +56,18 @@ public class ContactController {
 
         dto.setId(id);
         try {
-            ContactDto updated = contactsService.update(dto);
-            return ResponseEntity.ok(updated);
+            ContactDto updated = contactsService.update(dto, id);
+            return updated != null
+                    ? ResponseEntity.ok(updated)
+                    : ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<ContactDto> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         contactsService.delete(id);
         return ResponseEntity.noContent().build();
     }
