@@ -1,6 +1,7 @@
 package synergy.botikspring.myEntity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 
 @Entity
 @Table(name = "contacts")
@@ -26,14 +27,6 @@ public class Contact {
     public Contact() {
     }
 
-    public Contact(String firstName, String lastName, String middleName, String phone) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.middleName = middleName;
-        this.phone = phone;
-    }
-
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }
@@ -74,14 +67,13 @@ public class Contact {
         this.phone = phone;
     }
 
-    @Override
-    public String toString() {
-        return "Contact{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", middleName='" + middleName + '\'' +
-                ", phone='" + phone + '\'' +
-                '}';
+    public Contact(Long id, String firstName, String lastName, String middleName, String phone) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.middleName = middleName;
+        this.phone = phone;
+
+
     }
 }

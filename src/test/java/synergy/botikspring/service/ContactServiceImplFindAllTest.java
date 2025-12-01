@@ -27,9 +27,9 @@ class ContactServiceImplFindAllTest {
     @Test
     @DisplayName("ищет все контакты")
     void findAll() {
-        Contact contact1 = new Contact("Alice", "Smith", "Marie", "1234567890");
+        Contact contact1 = new Contact(1L, "Alice", "Smith", "Marie", "1234567890");
         contact1.setId(1L);
-        Contact contact2 = new Contact("Bob", "Johnson", "Lee", "0987654321");
+        Contact contact2 = new Contact(2L, "Bob", "Johnson", "Lee", "0987654321");
         contact2.setId(2L);
 
         when(contactRepository.findAll()).thenReturn(List.of(contact1, contact2));
