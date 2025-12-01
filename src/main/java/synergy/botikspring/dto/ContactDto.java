@@ -1,12 +1,16 @@
 package synergy.botikspring.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor  // Добавьте эту аннотацию
 public class ContactDto {
     private Long id;
     private String firstName;
@@ -25,58 +29,6 @@ public class ContactDto {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public ContactDto(Long id, String firstName, String lastName, String middleName, String phone) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.middleName = middleName;
-        this.phone = phone;
-    }
-
-    public ContactDto() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getMiddleName() {
-        return middleName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public void setMiddleName(String middleName) {
-        this.middleName = middleName;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     @Override

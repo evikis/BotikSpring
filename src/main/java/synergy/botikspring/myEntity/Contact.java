@@ -1,4 +1,4 @@
-package myEntity;
+package synergy.botikspring.myEntity;
 
 import jakarta.persistence.*;
 

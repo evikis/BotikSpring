@@ -1,6 +1,6 @@
-package repository;
+package synergy.botikspring.repository;
 
-import myEntity.Contact;
+import synergy.botikspring.myEntity.Contact;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

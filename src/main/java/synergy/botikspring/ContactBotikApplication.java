@@ -8,9 +8,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
-@EntityScan(basePackages = {"myEntity", "synergy.botikspring"})
-@EnableJpaRepositories("repository")
-@ComponentScan(basePackages = {"synergy.botikspring", "repository"})
+@EntityScan(basePackages = {"synergy.botikspring.myEntity", "synergy.botikspring"})
+@EnableJpaRepositories("synergy.botikspring.repository")
+@ComponentScan(basePackages = {"synergy.botikspring", "synergy.botikspring.repository"})
 public class ContactBotikApplication {
 
     public static void main(String[] args) {

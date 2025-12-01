@@ -1,91 +1,81 @@
 package synergy.botikspring.service;
 
-import myEntity.Contact;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import repository.ContactRepository;
+import synergy.botikspring.myEntity.Contact;
+import synergy.botikspring.repository.ContactRepository;
 import synergy.botikspring.dto.ContactDto;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    @Autowired
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
+
+    private ContactDto toDto(Contact contact) {
+        return ContactDto.builder()
+                .id(contact.getId())
+                .firstName(contact.getFirstName())
+                .lastName(contact.getLastName())
+                .middleName(contact.getMiddleName())
+                .phone(contact.getPhone())
+                .build();
+    }
+
+    private Contact toEntity(ContactDto dto) {
+        Contact contact = new Contact();
+        contact.setId(dto.getId());
+        contact.setFirstName(dto.getFirstName());
+        contact.setLastName(dto.getLastName());
+        contact.setMiddleName(dto.getMiddleName());
+        contact.setPhone(dto.getPhone());
+        return contact;
+    }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ContactDto> findAll() {
-        List<Contact> contacts = contactRepository.findAll();
-        return contacts.stream()
-                .map(this::convertToDto)
+        return contactRepository.findAll()
+                .stream()
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ContactDto findById(Long id) {
-        Optional<Contact> contact = contactRepository.findById(id);
-        if (contact.isPresent()) {
-            return convertToDto(contact.get());
-        } else {
-            throw new RuntimeException("Contact not found with id: " + id);
-        }
+        return contactRepository.findById(id)
+                .map(this::toDto)
+                .orElseThrow(() -> new RuntimeException("Contact not found"));
     }
 
     @Override
-    public ContactDto create(ContactDto contactDto) {
-        // Проверка на существующий телефон
-        if (contactRepository.existsByPhone(contactDto.getPhone())) {
-            throw new RuntimeException("Contact with phone " + contactDto.getPhone() + " already exists");
+    public ContactDto create(ContactDto dto) {
+        if (contactRepository.existsByPhone(dto.getPhone())) {
+            throw new RuntimeException("Phone already exists");
         }
-
-        Contact contact = convertToEntity(contactDto);
-        Contact savedContact = contactRepository.save(contact);
-        return convertToDto(savedContact);
+        Contact contact = toEntity(dto);
+        contact.setId(null); // ID будет сгенерирован БД
+        Contact saved = contactRepository.save(contact);
+        return toDto(saved);
     }
 
     @Override
-    public ContactDto update(ContactDto contactDto, Long id) {
-        // Проверяем существование контакта
+    public ContactDto update(ContactDto dto, Long id) {
         if (!contactRepository.existsById(id)) {
-            throw new RuntimeException("Contact not found with id: " + id);
+            return null;
         }
-
-        Contact contact = convertToEntity(contactDto);
+        Contact contact = toEntity(dto);
         contact.setId(id);
-        Contact updatedContact = contactRepository.save(contact);
-        return convertToDto(updatedContact);
+        Contact updated = contactRepository.save(contact);
+        return toDto(updated);
     }
 
     @Override
     public void delete(Long id) {
-        if (!contactRepository.existsById(id)) {
-            throw new RuntimeException("Contact not found with id: " + id);
+        if (contactRepository.existsById(id)) {
+            contactRepository.deleteById(id);
         }
-        contactRepository.deleteById(id);
-    }
-
-    private ContactDto convertToDto(Contact contact) {
-        ContactDto dto = new ContactDto();
-        dto.setId(contact.getId());
-        dto.setFirstName(contact.getFirstName());
-        dto.setLastName(contact.getLastName());
-        dto.setMiddleName(contact.getMiddleName());
-        dto.setPhone(contact.getPhone());
-        return dto;
-    }
-
-    private Contact convertToEntity(ContactDto contactDto) {
-        Contact contact = new Contact();
-        contact.setId(contactDto.getId());
-        contact.setFirstName(contactDto.getFirstName());
-        contact.setLastName(contactDto.getLastName());
-        contact.setMiddleName(contactDto.getMiddleName());
-        contact.setPhone(contactDto.getPhone());
-        return contact;
     }
 }

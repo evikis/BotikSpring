@@ -1,25 +1,22 @@
 package synergy.botikspring.control;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import synergy.botikspring.dto.ContactDto;
 import synergy.botikspring.service.ContactService;
 
-import java.net.URI;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/contacts")
+@RequiredArgsConstructor
 public class ContactController {
 
-    @Qualifier("contactServiceImpl")
-    @Autowired
-    private ContactService contactsService;
+    private final ContactService contactsService;
 
     @GetMapping
     public ResponseEntity<List<ContactDto>> getAll() {
@@ -33,7 +30,8 @@ public class ContactController {
             ContactDto contact = contactsService.findById(id);
             return ResponseEntity.ok(contact);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Error finding contact with id: {}", id, e);
+            return ResponseEntity.notFound().build();  // Возвращаем 404 вместо исключения
         }
     }
 
@@ -43,10 +41,10 @@ public class ContactController {
             ContactDto saved = contactsService.create(dto);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    //.created(URI.create("/api/contacts/" + saved.getId()))
                     .body(saved);
         } catch (Exception e){
-            return ResponseEntity.badRequest().body(null);
+            log.error("Error creating contact", e);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -54,22 +52,26 @@ public class ContactController {
     public ResponseEntity<ContactDto> update(
             @PathVariable Long id, @RequestBody ContactDto dto) {
 
-        dto.setId(id);
         try {
+            dto.setId(id);  // Убедимся, что ID установлен
             ContactDto updated = contactsService.update(dto, id);
             return updated != null
                     ? ResponseEntity.ok(updated)
                     : ResponseEntity.notFound().build();
         } catch (Exception e) {
+            log.error("Error updating contact with id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        contactsService.delete(id);
-        return ResponseEntity.noContent().build();
+        try {
+            contactsService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Error deleting contact with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
-
