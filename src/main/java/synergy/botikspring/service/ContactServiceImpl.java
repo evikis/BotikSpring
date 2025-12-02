@@ -1,7 +1,9 @@
 package synergy.botikspring.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import synergy.botikspring.myEntity.Contact;
 import synergy.botikspring.repository.ContactRepository;
 import synergy.botikspring.dto.ContactDto;
@@ -9,8 +11,10 @@ import synergy.botikspring.dto.ContactDto;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ContactServiceImpl implements ContactService {
 
     private final ContactRepository contactRepository;
@@ -36,6 +40,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ContactDto> findAll() {
         return contactRepository.findAll()
                 .stream()
@@ -44,6 +49,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ContactDto findById(Long id) {
         return contactRepository.findById(id)
                 .map(this::toDto)
@@ -51,6 +57,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional
     public ContactDto create(ContactDto dto) {
         if (contactRepository.existsByPhone(dto.getPhone())) {
             throw new RuntimeException("Phone already exists");
@@ -62,6 +69,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional
     public ContactDto update(ContactDto dto, Long id) {
         if (!contactRepository.existsById(id)) {
             return null;
@@ -73,9 +81,13 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         if (contactRepository.existsById(id)) {
             contactRepository.deleteById(id);
+            log.info("Контакт с id {} удален", id);
+        } else {
+            throw new RuntimeException("Контакт не найден");
         }
     }
 }

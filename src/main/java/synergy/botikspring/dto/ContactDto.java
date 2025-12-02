@@ -10,7 +10,7 @@ import java.util.Objects;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor  // Добавьте эту аннотацию
+@AllArgsConstructor
 public class ContactDto {
     private Long id;
     private String firstName;

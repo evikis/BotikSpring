@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import synergy.botikspring.dto.ContactDto;
+import synergy.botikspring.myEntity.Contact;
+import synergy.botikspring.repository.ContactRepository;
 import synergy.botikspring.service.ContactService;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 public class ContactController {
 
     private final ContactService contactsService;
+    private final ContactRepository contactRepository;
 
     @GetMapping
     public ResponseEntity<List<ContactDto>> getAll() {
@@ -73,5 +77,29 @@ public class ContactController {
             log.error("Error deleting contact with id: {}", id, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PostMapping("/test-transaction")
+    @Transactional
+    public ResponseEntity<String> testTransaction(@RequestParam boolean shouldFail) {
+        // Создаем первый контакт
+        Contact contact1 = new Contact();
+        contact1.setFirstName("Transaction");
+        contact1.setLastName("Test1");
+        contact1.setPhone("7999" + System.currentTimeMillis()); // Уникальный телефон
+        contactRepository.save(contact1);
+
+        Contact contact2 = new Contact();
+        contact2.setFirstName("Transaction");
+        contact2.setLastName("Test2");
+        contact2.setPhone("7999" + (System.currentTimeMillis() + 1));
+        contactRepository.save(contact2);
+
+        if (shouldFail) {
+            throw new RuntimeException("Forced transaction rollback for testing");
+        }
+
+        return ResponseEntity.ok("Transaction committed. Created IDs: " +
+                contact1.getId() + ", " + contact2.getId());
     }
 }
